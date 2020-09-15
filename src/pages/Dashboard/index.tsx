@@ -27,52 +27,86 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      // TODO LOAD FOODS
+       const response = await api.get('/foods');
+
+       setFoods(response.data);
     }
 
     loadFoods();
+
   }, []);
 
   async function handleAddFood(
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
     try {
-      // TODO ADD A NEW FOOD PLATE TO THE API
+
+      const newFood = {
+        id: foods.length + 1,
+        available: false,
+        ...food,
+      }
+
+      setFoods([...foods, newFood]);
+
+      console.log(foods);
+
     } catch (err) {
       console.log(err);
     }
   }
 
+
   async function handleUpdateFood(
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
-    // TODO UPDATE A FOOD PLATE ON THE API
+     const updatedFoods = foods.map( f => {
+        if (f.id !== editingFood.id) {
+          return f;
+        }
+
+        const updateFood = {
+          id: f.id,
+          available: f.available,
+          ...food
+        }
+
+        return updateFood;
+     });
+
+     setFoods(updatedFoods);
+
   }
 
+
   async function handleDeleteFood(id: number): Promise<void> {
-    // TODO DELETE A FOOD PLATE FROM THE API
+      const foodsWithoutDeletedFood = foods.filter(food => food.id !== id);
+      setFoods(foodsWithoutDeletedFood);
   }
 
   function toggleModal(): void {
-    setModalOpen(!modalOpen);
+      setModalOpen(!modalOpen);
   }
 
   function toggleEditModal(): void {
-    setEditModalOpen(!editModalOpen);
+      setEditModalOpen(!editModalOpen);
   }
 
   function handleEditFood(food: IFoodPlate): void {
-    // TODO SET THE CURRENT EDITING FOOD ID IN THE STATE
+      setEditingFood(food);
+      toggleEditModal();
   }
 
   return (
     <>
       <Header openModal={toggleModal} />
+
       <ModalAddFood
         isOpen={modalOpen}
         setIsOpen={toggleModal}
         handleAddFood={handleAddFood}
       />
+
       <ModalEditFood
         isOpen={editModalOpen}
         setIsOpen={toggleEditModal}
